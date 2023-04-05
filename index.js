@@ -31,7 +31,7 @@ app.get('/index.html', async (req, res) => {
 });
 
 app.get('/scaipe', async (req, res) => {
-  const browser = await puppeteer.launch();
+  const browser = await puppeteer.launch({ args: ['--no-sandbox'] });
   const page = await browser.newPage();
   const recorder = new PuppeteerScreenRecorder(page);
   const videoPath = `./${req.query.url.replace('https://', '')}.mp4`; 
