@@ -65,14 +65,12 @@ app.get('/scaipe', async (req, res) => {
       file.pipe(res);
   } else {
       const extractedText = await page.$eval('*', (el) => el.innerText);
-      console.log(extractedText);
       const head = {
           'Content-Length': fileSize,
           'Content-Type': 'video/mp4',
           'Extracted-Text': btoa(extractedText)
       };
       res.writeHead(200, head);
-      console.log(res);
       fs.createReadStream(videoPath).pipe(res);
   }
   await recorder.stop();
