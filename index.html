@@ -26,13 +26,36 @@
                 <input style="width:720px;height:36px;" value="https://google.com" />
                 <button onclick="console.log('todo');" style="width:50px;height:36px;">Go</button>
             </div>
-            <div style="">
+            <div>
                 <div>
-                    <iframe width="768" height="450" src="scaipe?url=https://google.com"></iframe>
+                    <iframe id="browser" width="768" height="450" src=""></iframe>
                 </div>
                 <br />
-                <textarea style="text-align:left;width:700px;height:300px">extracted text for debugging</textarea>
+                <textarea id="extracted-text" style="text-align:left;width:700px;height:300px"></textarea>
             </div>
         </div>
     </body>
+    <script>
+        window.onload = async () => {
+            const params = new Proxy(new URLSearchParams(window.location.search), {
+                get: (searchParams, prop) => searchParams.get(prop),
+            });
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', `scaipe?url=${params.url}`);
+            xhr.onreadystatechange = handler;
+            xhr.responseType = 'blob';
+            xhr.send();
+            function handler() {
+                if (this.readyState === this.DONE) {
+                    if (this.status === 200) {
+                        const extractedTextBlob = this.getResponseHeader('Extracted-Text');
+                        const extractedText = atob(extractedText);
+                        var data_url = URL.createObjectURL(this.response);
+                        document.querySelector('#browser').src = data_url;
+                        document.querySelector('#extracted-text').innerText = extractedText;
+                    }
+                }
+            }
+        }
+    </script>
 </html>

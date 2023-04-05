@@ -32,19 +32,6 @@ app.get('/index.html', async (req, res) => {
 
 app.get('/scaipe', async (req, res) => {
   const browser = await puppeteer.launch({ 
-    executablePath: '/usr/bin/google-chrome',
-    headless: true, args: 
-      ['--disable-gpu',
-      '--disable-dev-shm-usage',
-      '--disable-setuid-sandbox',
-      '--no-first-run',
-      '--no-sandbox',
-      '--no-zygote',
-      '--single-process',
-      "--proxy-server='direct://'",
-      '--proxy-bypass-list=*',
-      '--deterministic-fetch'
-    ] 
   });
   const page = await browser.newPage();
   const recorder = new PuppeteerScreenRecorder(page);
@@ -52,8 +39,7 @@ app.get('/scaipe', async (req, res) => {
   await recorder.start(videoPath);
   try {
     await page.goto(req.query.url);
-    await recorder.stop();
-    await browser.close();
+    
   } catch (err) {
     res.send(err);
   }
@@ -73,18 +59,24 @@ app.get('/scaipe', async (req, res) => {
           'Content-Range': `bytes ${start}-${end}/${fileSize}`,
           'Accept-Ranges': 'bytes',
           'Content-Length': chunksize,
-          'Content-Type': 'video/mp4',
+          'Content-Type': 'video/mp4'
       };
       res.writeHead(206, header);
       file.pipe(res);
   } else {
+      const extractedText = await page.$eval('*', (el) => el.innerText);
+      console.log(extractedText);
       const head = {
           'Content-Length': fileSize,
           'Content-Type': 'video/mp4',
+          'Extracted-Text': btoa(extractedText)
       };
       res.writeHead(200, head);
+      console.log(res);
       fs.createReadStream(videoPath).pipe(res);
   }
+  await recorder.stop();
+  await browser.close();
 });
 
 const port = parseInt(process.env.PORT) || 8080;
