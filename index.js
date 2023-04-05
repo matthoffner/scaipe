@@ -32,6 +32,19 @@ app.get('/index.html', async (req, res) => {
 
 app.get('/scaipe', async (req, res) => {
   const browser = await puppeteer.launch({ 
+    executablePath: '/usr/bin/google-chrome',
+    headless: true, args: 
+      ['--disable-gpu',
+      '--disable-dev-shm-usage',
+      '--disable-setuid-sandbox',
+      '--no-first-run',
+      '--no-sandbox',
+      '--no-zygote',
+      '--single-process',
+      "--proxy-server='direct://'",
+      '--proxy-bypass-list=*',
+      '--deterministic-fetch'
+    ] 
   });
   const page = await browser.newPage();
   const recorder = new PuppeteerScreenRecorder(page);
