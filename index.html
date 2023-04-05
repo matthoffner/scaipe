@@ -55,7 +55,7 @@
             }
         };
         document.getElementById('go').addEventListener('click', (e) => {
-            const navigateUrl = document.getElementById('address').getAttribute('value');
+            let navigateUrl = document.getElementById('address').value;
             console.log(navigateUrl);
             if (navigateUrl) {
                 loadUrl(navigateUrl);

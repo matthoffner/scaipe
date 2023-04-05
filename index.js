@@ -3,6 +3,7 @@ const app = express();
 const puppeteer = require('puppeteer');
 const fs = require('fs');
 const { PuppeteerScreenRecorder } = require('puppeteer-screen-recorder');
+const { PassThrough } = require('stream');
 
 /*
 const Config = {
@@ -49,18 +50,23 @@ app.get('/scaipe', async (req, res) => {
   const page = await browser.newPage();
   const recorder = new PuppeteerScreenRecorder(page);
   const videoPath = `./${req.query.url.replace('https://', '')}.mp4`; 
+  
   await recorder.start(videoPath);
   try {
     await page.goto(req.query.url);
-    
   } catch (err) {
     res.send(err);
   }
-
-  const videoStat = fs.statSync(videoPath);
-  const fileSize = videoStat.size;
+  let videoStat;
+  let fileSize;
+  try {
+    videoStat = fs.statSync(videoPath);
+    fileSize = videoStat.size;
+  } catch (err) {
+    fs.closeSync(fs.openSync(videoPath, 'a'))
+  }
   const videoRange = req.headers.range;
-  if (videoRange) {
+  if (videoRange && fileSize) {
       const parts = videoRange.replace(/bytes=/, "").split("-");
       const start = parseInt(parts[0], 10);
       const end = parts[1]
@@ -78,16 +84,19 @@ app.get('/scaipe', async (req, res) => {
       file.pipe(res);
   } else {
       const extractedText = await page.$eval('*', (el) => el.innerText);
+      await recorder.stop();
+      await browser.close();
+      updatedFile = fs.statSync(videoPath);
+      const buff = Buffer.from(extractedText);
+      const extractedTextBlob = buff.toString('base64');
       const head = {
-          'Content-Length': fileSize,
+          'Content-Length': updatedFile.size,
           'Content-Type': 'video/mp4',
-          'Extracted-Text': btoa(extractedText)
+          'Extracted-Text': extractedTextBlob
       };
       res.writeHead(200, head);
       fs.createReadStream(videoPath).pipe(res);
   }
-  await recorder.stop();
-  await browser.close();
 });
 
 const port = parseInt(process.env.PORT) || 8080;
