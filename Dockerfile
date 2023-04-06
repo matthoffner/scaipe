@@ -38,7 +38,7 @@ COPY package*.json ./
 # If you add a package-lock.json speed your build by switching to 'npm ci'.
 # RUN npm ci --only=production
 RUN npx dalai alpaca setup
-RUN npx dalai llama intall 7B
+RUN npx dalai alpaca install 7B
 
 RUN npm install --production
 
