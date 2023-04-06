@@ -49,7 +49,7 @@
                         const extractedTextBlob = this.getResponseHeader('Extracted-Text');
                         const llmText = atob(extractedTextBlob);
                         let parsedResponse;
-                        if (llmText.split('Response:').length) {
+                        if (llmText.split('Response:').length > 0) {
                             parsedResponse = llmText.split('Response:')[1].replace('<end>', '').replace(/\s+/g, ' ').trim();
                         } else {
                             parsedResponse = llmText;
