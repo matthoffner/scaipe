@@ -1,10 +1,12 @@
 const express = require('express');
-const app = express();
 const puppeteer = require('puppeteer');
 const fs = require('fs');
 const { PuppeteerScreenRecorder } = require('puppeteer-screen-recorder');
-const { PassThrough } = require('stream');
+const jsdom = require("jsdom");
+const { JSDOM } = jsdom;
+const readability = require('@mozilla/readability');
 
+const app = express();
 /*
 const Config = {
   followNewTab: true,
@@ -33,6 +35,7 @@ app.get('/index.html', async (req, res) => {
 
 app.get('/scaipe', async (req, res) => {
   const browser = await puppeteer.launch({ 
+    /*
     executablePath: '/usr/bin/google-chrome',
     headless: true, args: 
       ['--disable-gpu',
@@ -46,16 +49,25 @@ app.get('/scaipe', async (req, res) => {
       '--proxy-bypass-list=*',
       '--deterministic-fetch'
     ] 
+    */
   });
   const page = await browser.newPage();
   const recorder = new PuppeteerScreenRecorder(page);
-  const videoPath = `./${req.query.url.replace('https://', '')}.mp4`; 
+  const videoPath = `./${req.query.url.replace('https://', '').replaceAll('/', '')}.mp4`; 
   
   await recorder.start(videoPath);
   try {
-    await page.goto(req.query.url);
+    await page.setViewport({
+      width: 768,
+      height: 768,
+      deviceScaleFactor: 1,
+    });
+    await page.goto(req.query.url, { waitUntil: 'networkidle2' });
+    // await page.waitForFunction(() => document.readyState === "complete");
   } catch (err) {
+    console.log(err);
     res.send(err);
+    return;
   }
   let videoStat;
   let fileSize;
@@ -83,11 +95,15 @@ app.get('/scaipe', async (req, res) => {
       res.writeHead(206, header);
       file.pipe(res);
   } else {
-      const extractedText = await page.$eval('*', (el) => el.innerText);
+      const body = await page.evaluate(() => {
+        return document.querySelector("body").innerHTML;
+      });
+      const { document } = new JSDOM(body).window;
+      const article = new readability.Readability(document).parse();
       await recorder.stop();
       await browser.close();
       updatedFile = fs.statSync(videoPath);
-      const buff = Buffer.from(extractedText);
+      const buff = Buffer.from(article.textContent);
       const extractedTextBlob = buff.toString('base64');
       const head = {
           'Content-Length': updatedFile.size,
