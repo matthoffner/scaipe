@@ -1,6 +1,7 @@
 # Use the official lightweight Node.js 18 image.
 # https://hub.docker.com/_/node
 FROM node:16
+FROM python:3.10-slim-buster
 
 # We don't need the standalone Chromium
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD true
@@ -13,6 +14,17 @@ RUN apt-get update && apt-get install gnupg wget -y && \
   apt-get update && \
   apt-get install google-chrome-stable -y --no-install-recommends && \
   rm -rf /var/lib/apt/lists/*
+
+
+RUN apt-get update \
+    && apt-get install -y \
+        build-essential \
+        curl \
+        g++ \
+	git \
+        make \
+        python3-venv \
+        software-properties-common
 
 # Create and change to the app directory.
 WORKDIR /usr/src/app
@@ -29,6 +41,9 @@ RUN npm install --production
 
 # Copy local code to the container image.
 COPY . ./
+
+RUN npx dalai alpaca setup
+
 
 # Run the web service on container startup.
 CMD ["node", "index.js"]
