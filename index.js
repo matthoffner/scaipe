@@ -5,6 +5,11 @@ const { PuppeteerScreenRecorder } = require('puppeteer-screen-recorder');
 const jsdom = require("jsdom");
 const { JSDOM } = jsdom;
 const readability = require('@mozilla/readability');
+const Dalai = require('dalai');
+const { homedir } = require('os');
+
+console.log(`${homedir}/dalai`);
+const dalai = new Dalai(`${homedir}/dalai`);
 
 const app = express();
 /*
@@ -35,7 +40,6 @@ app.get('/index.html', async (req, res) => {
 
 app.get('/scaipe', async (req, res) => {
   const browser = await puppeteer.launch({ 
-    /*
     executablePath: '/usr/bin/google-chrome',
     headless: true, args: 
       ['--disable-gpu',
@@ -49,7 +53,6 @@ app.get('/scaipe', async (req, res) => {
       '--proxy-bypass-list=*',
       '--deterministic-fetch'
     ] 
-    */
   });
   const page = await browser.newPage();
   const recorder = new PuppeteerScreenRecorder(page);
@@ -103,12 +106,19 @@ app.get('/scaipe', async (req, res) => {
       await recorder.stop();
       await browser.close();
       updatedFile = fs.statSync(videoPath);
-      const buff = Buffer.from(article.textContent);
-      const extractedTextBlob = buff.toString('base64');
+      
+      const llm = [];
+      await dalai.request({
+        model: "alpaca.7B", prompt: 
+        `## Context:${article ? article.textContent : `${req.query.url} didn't load`} ## Instruction: Provide concise summary using only Context and Input. ## Input: ${req.query.prompt} ## Response:`, n_predict: 100
+      },  (msg) => { 
+        llm.push(msg);
+      });
+
       const head = {
           'Content-Length': updatedFile.size,
           'Content-Type': 'video/mp4',
-          'Extracted-Text': extractedTextBlob
+          'Extracted-Text': Buffer.from(llm.join(' ')).toString('base64')
       };
       res.writeHead(200, head);
       fs.createReadStream(videoPath).pipe(res);
