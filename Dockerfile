@@ -1,13 +1,13 @@
-# Use the official lightweight Node.js 18 image.
-# https://hub.docker.com/_/node
-FROM node:16
 FROM python:3.10-slim-buster
 
-# We don't need the standalone Chromium
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD true
 
-# Install Google Chrome Stable and fonts
-# Note: this installs the necessary libs to make the browser work with Puppeteer.
+RUN curl -fsSL https://deb.nodesource.com/setup_16.x | bash -
+
+RUN apt-get update \
+    && apt-get install -y nodejs
+
+
 RUN apt-get update && apt-get install gnupg wget -y && \
   wget --quiet --output-document=- https://dl-ssl.google.com/linux/linux_signing_key.pub | gpg --dearmor > /etc/apt/trusted.gpg.d/google-archive.gpg && \
   sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list' && \
@@ -27,7 +27,7 @@ RUN apt-get update \
         software-properties-common
 
 # Create and change to the app directory.
-WORKDIR /usr/src/app
+WORKDIR /root/dalai
 
 # Copy application dependency manifests to the container image.
 # A wildcard is used to ensure both package.json AND package-lock.json are copied.
@@ -43,7 +43,6 @@ RUN npm install --production
 COPY . ./
 
 RUN npx dalai alpaca setup
-
 
 # Run the web service on container startup.
 CMD ["node", "index.js"]
