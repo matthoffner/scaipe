@@ -48,7 +48,12 @@
                     if (this.status === 200) {
                         const extractedTextBlob = this.getResponseHeader('Extracted-Text');
                         const llmText = atob(extractedTextBlob);
-                        const parsedResponse = llmText.split('Response:')[1].replace('<end>', '').replace(/\s+/g, ' ').trim();
+                        let parsedResponse;
+                        if (llmText.split('Response:').length) {
+                            parsedResponse = llmText.split('Response:')[1].replace('<end>', '').replace(/\s+/g, ' ').trim();
+                        } else {
+                            parsedResponse = llmText;
+                        }
                         var data_url = URL.createObjectURL(this.response);
                         document.querySelector('#browser').src = data_url;
                         document.querySelector('#llm-text').innerText = parsedResponse;
