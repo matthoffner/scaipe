@@ -27,7 +27,7 @@ RUN apt-get update \
         software-properties-common
 
 # Create and change to the app directory.
-WORKDIR /root/dalai
+WORKDIR /home/dalai
 
 # Copy application dependency manifests to the container image.
 # A wildcard is used to ensure both package.json AND package-lock.json are copied.
@@ -38,6 +38,7 @@ COPY package*.json ./
 # If you add a package-lock.json speed your build by switching to 'npm ci'.
 # RUN npm ci --only=production
 RUN npx dalai alpaca setup
+RUN npx dalai llama intall 7B
 
 RUN npm install --production
 
