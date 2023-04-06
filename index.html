@@ -16,31 +16,30 @@
 " />
                 </div>
             </div>
+            <div style="margin-bottom: 10px;">
+                <input id="address" style="width:720px;height:36px;" value="https://yahoo.com" />
+                <button id="go" style="width:50px;height:36px;">Go</button>
+            </div>
             <div style="flex:1;display:flex;">
                 <div style="margin-bottom:10px;margin-right:20px;">
-                    <textarea style="width:370px;height:200px;">Prompt</textarea>
+                    <textarea id="prompt" style="width:370px;height:200px;">Tell me something interesting</textarea>
                 </div>
                 <div style="width:300px;margin-bottom:10px;">
-                    <textarea style="width:370px;height:200px">Result</textarea>
+                    <textarea id="llm-text" style="width:370px;height:200px">Result</textarea>
                 </div>
-            </div>
-            <div style="margin-bottom: 10px;">
-                <input id="address" style="width:720px;height:36px;" value="https://google.com" />
-                <button id="go" style="width:50px;height:36px;">Go</button>
             </div>
             <div>
                 <div>
-                    <iframe id="browser" width="768" height="768"></iframe>
+                    <iframe id="browser" width="768" height="1024"></iframe>
                 </div>
                 <br />
-                <textarea id="extracted-text" style="text-align:left;width:700px;height:300px"></textarea>
             </div>
         </div>
     </body>
     <script>
-        const loadUrl = (url) => {
+        const loadUrl = (url, prompt) => {
             var xhr = new XMLHttpRequest();
-            xhr.open('GET', `scaipe?url=${url}`);
+            xhr.open('GET', `scaipe?url=${url}&prompt=${prompt}`);
             xhr.onreadystatechange = handler;
             xhr.responseType = 'blob';
             xhr.send();
@@ -48,19 +47,21 @@
                 if (this.readyState === this.DONE) {
                     if (this.status === 200) {
                         const extractedTextBlob = this.getResponseHeader('Extracted-Text');
-                        const extractedText = atob(extractedTextBlob);
+                        const llmText = atob(extractedTextBlob);
+                        const parsedResponse = llmText.split('Response:')[1].replace('<end>', '').replace(/\s+/g, ' ').trim();
                         var data_url = URL.createObjectURL(this.response);
                         document.querySelector('#browser').src = data_url;
-                        document.querySelector('#extracted-text').innerText = extractedText;
+                        document.querySelector('#llm-text').innerText = parsedResponse;
                     }
                 }
             }
         };
         document.getElementById('go').addEventListener('click', (e) => {
             let navigateUrl = document.getElementById('address').value;
-            console.log(navigateUrl);
+            let prompt = document.getElementById('prompt').value;
+            console.log(navigateUrl, prompt);
             if (navigateUrl) {
-                loadUrl(navigateUrl);
+                loadUrl(navigateUrl, prompt);
             }
         });
     </script>

@@ -32,6 +32,23 @@ const Config = {
 };
 */
 
+var isMac = process.platform === "darwin";
+const defaultArgs = isMac ? {} : { 
+  executablePath: '/usr/bin/google-chrome',
+  headless: true, args: 
+    ['--disable-gpu',
+    '--disable-dev-shm-usage',
+    '--disable-setuid-sandbox',
+    '--no-first-run',
+    '--no-sandbox',
+    '--no-zygote',
+    '--single-process',
+    "--proxy-server='direct://'",
+    '--proxy-bypass-list=*',
+    '--deterministic-fetch'
+  ] 
+};
+
 app.get('/index.html', async (req, res) => {
   res.writeHead(200, {'Content-Type': 'text/html'});
   const file = fs.createReadStream('index.html');
@@ -39,21 +56,7 @@ app.get('/index.html', async (req, res) => {
 });
 
 app.get('/scaipe', async (req, res) => {
-  const browser = await puppeteer.launch({ 
-    executablePath: '/usr/bin/google-chrome',
-    headless: true, args: 
-      ['--disable-gpu',
-      '--disable-dev-shm-usage',
-      '--disable-setuid-sandbox',
-      '--no-first-run',
-      '--no-sandbox',
-      '--no-zygote',
-      '--single-process',
-      "--proxy-server='direct://'",
-      '--proxy-bypass-list=*',
-      '--deterministic-fetch'
-    ] 
-  });
+  const browser = await puppeteer.launch(defaultArgs);
   const page = await browser.newPage();
   const recorder = new PuppeteerScreenRecorder(page);
   const videoPath = `./${req.query.url.replace('https://', '').replaceAll('/', '')}.mp4`; 
@@ -62,7 +65,7 @@ app.get('/scaipe', async (req, res) => {
   try {
     await page.setViewport({
       width: 768,
-      height: 768,
+      height: 1024,
       deviceScaleFactor: 1,
     });
     await page.goto(req.query.url, { waitUntil: 'networkidle2' });
