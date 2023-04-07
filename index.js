@@ -5,11 +5,11 @@ const { PuppeteerScreenRecorder } = require('puppeteer-screen-recorder');
 const jsdom = require("jsdom");
 const { JSDOM } = jsdom;
 const readability = require('@mozilla/readability');
-const Dalai = require('dalai');
+// const Dalai = require('dalai');
 const { homedir } = require('os');
 
 
-const dalai = new Dalai('/root/dalai/alpaca/main.cpp');
+// const dalai = new Dalai('/root/dalai/alpaca/main.cpp');
 
 const app = express();
 
@@ -91,18 +91,11 @@ app.get('/scaipe', async (req, res) => {
       await browser.close();
       updatedFile = fs.statSync(videoPath);
       
-      const llm = [];
-      await dalai.request({
-        model: "alpaca.7B", prompt: 
-        `## Context:${article ? article.textContent : `${req.query.url} didn't load`} ## Instruction: Provide concise summary using only Context and Input. ## Input: ${req.query.prompt} ## Response:`, n_predict: 100
-      },  (msg) => { 
-        llm.push(msg);
-      });
 
       const head = {
           'Content-Length': updatedFile.size,
           'Content-Type': 'video/mp4',
-          'Extracted-Text': Buffer.from(llm.join(' ')).toString('base64')
+          'Extracted-Text': Buffer.from(article.textContent).toString('base64')
       };
       res.writeHead(200, head);
       fs.createReadStream(videoPath).pipe(res);
