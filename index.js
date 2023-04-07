@@ -8,29 +8,10 @@ const readability = require('@mozilla/readability');
 const Dalai = require('dalai');
 const { homedir } = require('os');
 
-console.log(`${homedir}/dalai`);
-const dalai = new Dalai(`${homedir}/dalai`);
+
+const dalai = new Dalai('/root/dalai/alpaca/main.cpp');
 
 const app = express();
-/*
-const Config = {
-  followNewTab: true,
-  fps: 25,
-  ffmpeg_Path: '<path of ffmpeg_path>' || null,
-  videoFrame: {
-    width: 1024,
-    height: 768,
-  },
-  videoCrf: 18,
-  videoCodec: 'libx264',
-  videoPreset: 'ultrafast',
-  videoBitrate: 1000,
-  autopad: {
-    color: 'black' | '#35A5FF',
-  },
-  aspectRatio: '4:3',
-};
-*/
 
 var isMac = process.platform === "darwin";
 const defaultArgs = isMac ? {} : { 
