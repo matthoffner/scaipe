@@ -36,10 +36,12 @@ app.get('/scaipe', async (req, res) => {
       deviceScaleFactor: 1
     });
     await page.goto(req.query.url, { waitUntil: 'networkidle2' });
-    const image = await page.screenshot({fullPage: true});
+    await page.screenshot({fullPage: true}).then(async image => {
+      res.writeHead(200, {'Content-Type': 'image/png'});
+      res.write(image);
+      res.end();
+    });
     await browser.close();
-    res.writeHead(200, {'Content-Type': 'image/png'});
-    res.end(image);
 });
 
 
