@@ -63,5 +63,9 @@
                 loadUrl(navigateUrl, prompt);
             }
         });
+
+        document.getElementById('browser').addEventListener('load', (e) => {
+            console.log('loaded', e);
+        });
     </script>
 </html>
