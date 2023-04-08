@@ -1,6 +1,6 @@
 const express = require('express');
 const puppeteer = require('puppeteer');
-
+const fs = require('fs');
 const app = express();
 
 var isMac = process.platform === "darwin";
