@@ -16,13 +16,15 @@
 " />
                 </div>
             </div>
-            <div style="margin-bottom: 10px;">
+            <div style="flex:1;display:flex;margin-bottom: 10px;">
                 <input id="address" style="width:720px;height:36px;" value="https://yahoo.com" />
-                <button id="go" style="width:100px;height:36px;">Go</button>
+                <input id="prompt" style="width:720px;height:36px;" value="Prompt" />    
+                <button id="go" style="width:100px;height:36px;bottom:2px;position:relative">Go</button>
             </div>
+            
             <div style="flex:1;display:flex;">
                 <div style="width:300px;margin-bottom:10px;">
-                    <textarea id="model-text" style="height:200px">Press Go to navigate to a website</textarea>
+                    <div id="model-text" style="margin-top:10px;height:200px">Press Go to navigate to a website</div>
                 </div>
             </div>
             <div>
@@ -34,6 +36,7 @@
                             document.getElementById('model-text').style.width = window.innerWidth - 120;
                             document.getElementById('address').style.width = window.innerWidth - 220;
                             document.getElementById('header').style.width = window.innerWidth - 220;
+                            document.getElementById('prompt').style.width = window.innerWidth - 220;
                         }
                     </script>
                 </div>
