@@ -30,7 +30,7 @@ app.get('/scaipe', async (req, res) => {
     const browser = await puppeteer.launch(defaultArgs);
     const page = await browser.newPage();
     await page.setViewport({
-      width: req.query.width || 768,
+      width: req.query.width ? parseInt(req.query.width, 10) : 768,
       height: 1280,
       deviceScaleFactor: 1
     });
