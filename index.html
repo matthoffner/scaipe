@@ -8,7 +8,7 @@
     <body style="padding:25px;background-color:gray;">
         <div>
             <div style="flex:1;display:flex;">
-                <div style="width:600px;padding:10px;margin-right:20px;">
+                <div id="header" style="padding:10px;margin-right:20px;">
                     <h1>scaipe</h1>
                 </div>
                 <div style="text-align:right">
@@ -18,14 +18,11 @@
             </div>
             <div style="margin-bottom: 10px;">
                 <input id="address" style="width:720px;height:36px;" value="https://yahoo.com" />
-                <button id="go" style="width:50px;height:36px;">Go</button>
+                <button id="go" style="width:100px;height:36px;">Go</button>
             </div>
             <div style="flex:1;display:flex;">
-                <div style="margin-bottom:10px;margin-right:20px;">
-                    <textarea id="prompt" style="width:370px;height:200px;">Summarize this page</textarea>
-                </div>
                 <div style="width:300px;margin-bottom:10px;">
-                    <textarea id="model-text" style="width:370px;height:200px">Result</textarea>
+                    <textarea id="model-text" style="height:200px">Press Go to navigate to a website</textarea>
                 </div>
             </div>
             <div>
@@ -34,6 +31,9 @@
                     <script>
                         window.onload = () => {
                             document.getElementById('browser').style.width = window.innerWidth - 120;
+                            document.getElementById('model-text').style.width = window.innerWidth - 120;
+                            document.getElementById('address').style.width = window.innerWidth - 220;
+                            document.getElementById('header').style.width = window.innerWidth - 220;
                         }
                     </script>
                 </div>
@@ -42,9 +42,9 @@
         </div>
     </body>
     <script>
-        const loadUrl = (url, prompt) => {
+        const loadUrl = (url) => {
             var xhr = new XMLHttpRequest();
-            xhr.open('GET', `scaipe?url=${url}&prompt=${prompt}&width=${window.innerWidth - 120}`);
+            xhr.open('GET', `scaipe?url=${url}&width=${window.innerWidth - 120}`);
             xhr.onreadystatechange = handler;
             xhr.responseType = 'blob';
             xhr.send();
@@ -61,9 +61,8 @@
         document.getElementById('go').addEventListener('click', (e) => {
             document.getElementById('model-text').innerText = 'Fetching website...';
             let navigateUrl = document.getElementById('address').value;
-            let prompt = document.getElementById('prompt').value;
             if (navigateUrl) {
-                loadUrl(navigateUrl, prompt);
+                loadUrl(navigateUrl);
             }
         });
 
@@ -83,7 +82,7 @@
                 const result = await response.json();
                 return result;
             }
-            document.getElementById('model-text').innerText = 'Fetching model...';
+            document.getElementById('model-text').innerText = 'Summarizing data...';
             const modelData = await queryModel({inputs: y.body.innerText});
             if (modelData.length > 0) {
                 document.getElementById('model-text').innerText = modelData[0].summary_text;
