@@ -2,7 +2,6 @@ const express = require('express');
 const puppeteer = require('puppeteer');
 const fs = require('fs');
 const app = express();
-const Tesseract = require("tesseract.js");
 var isMac = process.platform === "darwin";
 const defaultArgs = isMac ? {} : { 
   executablePath: '/usr/bin/google-chrome',
@@ -36,15 +35,11 @@ app.get('/scaipe', async (req, res) => {
       deviceScaleFactor: 1
     });
     await page.goto(req.query.url, { waitUntil: 'networkidle2' });
-    await page.screenshot({fullPage: true}).then(async image => {
-      await browser.close();
-      const { data } = await Tesseract.recognize(image, "spa+eng");
-      res.writeHead(200, {
-        'Content-Type': 'image/png', 'Extracted-Text':
-        Buffer.from(data.text).toString('base64')});
-      res.write(image);
-      res.end();
-    });
+    const data = await page.evaluate(() => document.querySelector('*').outerHTML);
+    await browser.close();
+    res.writeHead(200, {'Content-Type': 'text/html'});
+    res.write(data);
+    res.end();
 });
 
 
