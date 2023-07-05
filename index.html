@@ -69,41 +69,40 @@
             </div>
         </div>
         <script>
-        window.onload = () => {
-            document.getElementById('browser').style.width = window.innerWidth - 120;
-            document.getElementById('llm-text').style.width = window.innerWidth - 120;
-            document.getElementById('prompt').style.width = window.innerWidth - 120;
-            document.getElementById('address').style.width = window.innerWidth - 120;
-            document.getElementById('header').style.width = window.innerWidth - 120;
-        }
-
-        const loadUrl = (url, prompt) => {
-            var xhr = new XMLHttpRequest();
-            xhr.open('GET', `scaipe?url=${url}&prompt=${prompt}`);
-            xhr.onreadystatechange = handler;
-            xhr.responseType = 'blob';
-            xhr.send();
-            function handler() {
-                if (this.readyState === this.DONE) {
-                    if (this.status === 200) {
-                        const extractedTextBlob = this.getResponseHeader('Extracted-Text');
-                        const llmText = atob(extractedTextBlob);
-                        var data_url = URL.createObjectURL(this.response);
-                        document.querySelector('#browser').src = data_url;
-                        document.querySelector('#llm-text').innerText = llmText;
+            window.onload = () => {
+                document.getElementById('browser').style.width = window.innerWidth - 120;
+                document.getElementById('llm-text').style.width = window.innerWidth - 120;
+                document.getElementById('prompt').style.width = window.innerWidth - 120;
+                document.getElementById('address').style.width = window.innerWidth - 120;
+            }
+        
+            const loadUrl = (url, prompt) => {
+                var xhr = new XMLHttpRequest();
+                xhr.open('GET', `scaipe?url=${url}&prompt=${prompt}`);
+                xhr.onreadystatechange = handler;
+                xhr.responseType = 'blob';
+                xhr.send();
+                function handler() {
+                    if (this.readyState === this.DONE) {
+                        if (this.status === 200) {
+                            const extractedTextBlob = this.getResponseHeader('Extracted-Text');
+                            const llmText = atob(extractedTextBlob);
+                            var data_url = URL.createObjectURL(this.response);
+                            document.querySelector('#browser').src = data_url;
+                            document.querySelector('#llm-text').innerText = llmText;
+                        }
                     }
                 }
-            }
-        };
-
-        document.getElementById('go').addEventListener('click', (e) => {
-            let navigateUrl = document.getElementById('address').value;
-            let prompt = document.getElementById('prompt').value;
-            console.log(navigateUrl, prompt);
-            if (navigateUrl) {
-                loadUrl(navigateUrl, prompt);
-            }
-        });
-    </script>
+            };
+        
+            document.getElementById('go').addEventListener('click', (e) => {
+                let navigateUrl = document.getElementById('address').value;
+                let prompt = document.getElementById('prompt').value;
+                console.log(navigateUrl, prompt);
+                if (navigateUrl) {
+                    loadUrl(navigateUrl, prompt);
+                }
+            });
+        </script>
     </body>
 </html>
