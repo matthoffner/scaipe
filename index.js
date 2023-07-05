@@ -1,5 +1,6 @@
 const express = require('express');
 const puppeteer = require('puppeteer');
+const fs = require('fs');
 const { PuppeteerScreenRecorder } = require('puppeteer-screen-recorder');
 const jsdom = require("jsdom");
 const { JSDOM } = jsdom;
