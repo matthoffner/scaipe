@@ -44,4 +44,4 @@ RUN npm install --production
 COPY . ./
 
 # Run the web service on container startup.
-CMD ["node", "index.mjs"]
+CMD ["node", "index.mjs", "8080"]
