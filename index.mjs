@@ -61,6 +61,23 @@ if ( CLI ) {
   start({port:PORT});
 }
 
+var isMac = process.platform === "darwin";
+const defaultArgs = isMac ? {} : { 
+  executablePath: '/usr/bin/google-chrome',
+  headless: true, args: 
+    ['--disable-gpu',
+    '--disable-dev-shm-usage',
+    '--disable-setuid-sandbox',
+    '--no-first-run',
+    '--no-sandbox',
+    '--no-zygote',
+    '--single-process',
+    "--proxy-server='direct://'",
+    '--proxy-bypass-list=*',
+    '--deterministic-fetch'
+  ] 
+};
+
 export async function start({port: port = 8080, url: url = START_URL} = {}) {
   const state = {
     shooting: false,
@@ -68,9 +85,7 @@ export async function start({port: port = 8080, url: url = START_URL} = {}) {
     clients: []
   };
   process.stdout.write(`Starting browser...`);
-  const bro = await puppeteer.launch({
-    headless: true
-  });
+  const bro = await puppeteer.launch(defaultArgs);
   const page = await bro.newPage();
   await page.goto(url);
   await broadcastShot();
